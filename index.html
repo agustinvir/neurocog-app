@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informes Neurocognitivos</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="login-logo">N</div>
+      <h1>Informes neurocognitivos</h1>
+      <p>Sistema de evaluación clínica</p>
+    </div>
+    <div class="login-card">
+      <div id="login-msg"></div>
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-primary full-w" onclick="doLogin()">Ingresar</button>
+      <div class="login-sep"><span>¿Primera vez?</span></div>
+      <button class="btn-outline full-w" onclick="showRegister()">Crear cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTRO -->
+<div id="screen-register" class="screen">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="login-logo">N</div>
+      <h1>Crear cuenta</h1>
+      <p>Completá tus datos profesionales</p>
+    </div>
+    <div class="login-card">
+      <div id="register-msg"></div>
+      <div class="field"><label>Nombre completo</label><input type="text" id="reg-nombre" placeholder="Lic. Nombre Apellido"></div>
+      <div class="field"><label>Correo electrónico</label><input type="email" id="reg-email" placeholder="tu@email.com"></div>
+      <div class="field"><label>Contraseña</label><input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"></div>
+      <div class="field"><label>Matrícula profesional</label><input type="text" id="reg-matricula" placeholder="ej. M.P. 13637"></div>
+      <div class="field"><label>Teléfono</label><input type="text" id="reg-tel" placeholder="ej. 03537-15658796"></div>
+      <button class="btn-primary full-w" onclick="doRegister()">Crear cuenta</button>
+      <button class="btn-ghost full-w" onclick="showLogin()">← Volver al inicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP PRINCIPAL -->
+<div id="screen-app" class="screen">
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo">N</div>
+      <span>Neurocognitivos</span>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showView('nuevo')">Nuevo informe</button>
+      <button class="nav-tab" onclick="showView('lista')">Mis pacientes</button>
+      <button class="nav-tab" onclick="showView('config')">Configuración</button>
+    </div>
+    <div class="nav-user">
+      <span id="nav-nombre"></span>
+      <button class="btn-ghost-sm" onclick="doLogout()">Salir</button>
+    </div>
+  </nav>
+
+  <!-- VISTA: NUEVO INFORME -->
+  <div id="view-nuevo" class="view active">
+    <div class="container">
+      <div id="app-msg"></div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Datos personales</div>
+        <div class="grid2">
+          <div class="field"><label>Nombre y apellido</label><input type="text" id="nombre" placeholder="ej. María Esther Recla"></div>
+          <div class="field"><label>Edad</label><input type="text" id="edad" placeholder="ej. 77 años"></div>
+          <div class="field"><label>Fecha de nacimiento</label><input type="text" id="fnac" placeholder="ej. 23/09/1948"></div>
+          <div class="field"><label>Sexo</label><select id="sexo"><option value="">Seleccionar...</option><option>Femenino</option><option>Masculino</option></select></div>
+          <div class="field"><label>Nivel educativo</label><input type="text" id="educacion" placeholder="ej. Terciario incompleto"></div>
+          <div class="field"><label>Ocupación</label><input type="text" id="ocupacion" placeholder="ej. Jubilada, vicedirectora"></div>
+          <div class="field"><label>Lentes</label><select id="lentes"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="field"><label>Audífonos</label><select id="audifonos"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="field"><label>Dominancia manual</label><select id="dominancia"><option value="">—</option><option>Derecha</option><option>Izquierda</option><option>Ambidiestro</option></select></div>
+          <div class="field"><label>Fecha(s) de evaluación</label><input type="text" id="fechas_eval" placeholder="ej. 14/04/2026 y 16/04/2026"></div>
+          <div class="field"><label>Derivado por</label><input type="text" id="derivado" placeholder="ej. Dra. María Elisa Galetto"></div>
+          <div class="field"><label>Motivo de consulta</label><input type="text" id="motivo" placeholder="ej. Olvidos cotidianos"></div>
+          <div class="field full"><label>Antecedentes neurológicos / psiquiátricos</label><input type="text" id="antecedentes" placeholder="ej. Tratamiento psiquiátrico (2025)"></div>
+          <div class="field full"><label>Antecedentes familiares</label><input type="text" id="antec_familiares" placeholder="ej. Alzheimer (mamá)"></div>
+          <div class="field"><label>Hábitos tóxicos</label><input type="text" id="habitos" placeholder="ej. Ninguno"></div>
+          <div class="field"><label>Actividad física</label><input type="text" id="actividad" placeholder="ej. Actualmente nada"></div>
+          <div class="field"><label>Estudios complementarios</label><input type="text" id="estudios" placeholder="ej. Sin especificar"></div>
+          <div class="field full"><label>Sueño</label><textarea id="sueno" rows="2" placeholder="Describir patrón de sueño..."></textarea></div>
+          <div class="field full"><label>Red de apoyo</label><textarea id="red_apoyo" rows="2" placeholder="Describir red de apoyo social y familiar..."></textarea></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Aportes durante la entrevista</div>
+        <div class="field"><textarea id="aportes" rows="5" placeholder="Descripción de lo relatado por el paciente y familiar durante la entrevista..."></textarea></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Descripción de la conducta</div>
+        <div class="field"><textarea id="conducta" rows="5" placeholder="Comportamiento, actitud, lenguaje, estado de ánimo durante la evaluación..."></textarea></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Pruebas administradas</div>
+        <p class="hint">Marcá las pruebas que se administraron.</p>
+        <div class="checks-grid" id="pruebas-checks"></div>
+      </div>
+
+      <!-- RESULTADOS -->
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Resultados — Screening ACE-R</div>
+        <div class="score-grid">
+          <div class="score-item"><label>Orientación</label><input type="text" id="ace_orient" placeholder="ej. 9/10"></div>
+          <div class="score-item"><label>Atención</label><input type="text" id="ace_aten" placeholder="ej. 8/8"></div>
+          <div class="score-item"><label>Memoria</label><input type="text" id="ace_mem" placeholder="ej. 19/26"></div>
+          <div class="score-item"><label>Fluencia verbal</label><input type="text" id="ace_flu" placeholder="ej. 11/14"></div>
+          <div class="score-item"><label>Lenguaje</label><input type="text" id="ace_leng" placeholder="ej. 25/26"></div>
+          <div class="score-item"><label>Hab. visoespaciales</label><input type="text" id="ace_visoes" placeholder="ej. 14/16"></div>
+          <div class="score-item"><label>Total</label><input type="text" id="ace_total" placeholder="ej. 86/100"></div>
+          <div class="score-item"><label>Punto de corte</label><input type="text" id="ace_corte" placeholder="ej. 86"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Resultados — Atención</div>
+        <div class="score-grid">
+          <div class="score-item"><label>Dígitos directos (PB/Z)</label><input type="text" id="at_dig_d" placeholder="ej. 8 / -0.3"></div>
+          <div class="score-item"><label>Dígitos inversos</label><input type="text" id="at_dig_i" placeholder="ej. 6"></div>
+          <div class="score-item"><label>Dígitos símbolos (PB/Z)</label><input type="text" id="at_dig_s" placeholder="ej. 44 / -0.3"></div>
+          <div class="score-item"><label>Números y letras (PB/Z)</label><input type="text" id="at_nl" placeholder="ej. 9 / 0.7"></div>
+          <div class="score-item"><label>Búsqueda símbolos (PB/Z)</label><input type="text" id="at_bus" placeholder="ej. 17 / -0.3"></div>
+          <div class="score-item"><label>TMT A (seg/Z)</label><input type="text" id="at_tmta" placeholder="ej. 46 / 0.2"></div>
+          <div class="score-item"><label>TMT B (seg/Z)</label><input type="text" id="at_tmtb" placeholder="ej. 164 / -2"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> Resultados — Memoria</div>
+        <div class="score-grid">
+          <div class="score-item"><label>RAVLT — Curva</label><input type="text" id="mem_curva" placeholder="ej. 3-5-7-7-9"></div>
+          <div class="score-item"><label>Inmediata (PB/Z)</label><input type="text" id="mem_inm" placeholder="ej. 31 / -1.6"></div>
+          <div class="score-item"><label>Interferencia (PB/Z)</label><input type="text" id="mem_interf" placeholder="ej. 3 / -0.6"></div>
+          <div class="score-item"><label>Corto plazo (PB/Z)</label><input type="text" id="mem_cp" placeholder="ej. 7 / -0.4"></div>
+          <div class="score-item"><label>Largo plazo (PB/Z)</label><input type="text" id="mem_lp" placeholder="ej. 7 / -0.6"></div>
+          <div class="score-item"><label>Reconocimiento (PB/Z)</label><input type="text" id="mem_rec" placeholder="ej. 15 / 0.7"></div>
+          <div class="score-item"><label>Intrusiones</label><input type="text" id="mem_intrus" placeholder="ej. 4"></div>
+          <div class="score-item"><label>Falsos positivos</label><input type="text" id="mem_fp" placeholder="ej. 17"></div>
+          <div class="score-item"><label>FCRO diferido (PB/Z)</label><input type="text" id="mem_fcro" placeholder="ej. 2.5 / -2.6"></div>
+          <div class="score-item"><label>FCRO reconocimiento (PB/Z)</label><input type="text" id="mem_fcro_rec" placeholder="ej. 19 / -0.7"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Resultados — Lenguaje</div>
+        <div class="score-grid">
+          <div class="score-item"><label>Fluencia fonológica (PB/Z)</label><input type="text" id="leng_fon" placeholder="ej. 19 / 1.9"></div>
+          <div class="score-item"><label>Fluencia semántica (PB/Z)</label><input type="text" id="leng_sem" placeholder="ej. 12 / -0.9"></div>
+          <div class="score-item"><label>Boston denominación (PB/Z)</label><input type="text" id="leng_bos" placeholder="ej. 9 / -1.7"></div>
+          <div class="score-item"><label>Comprensión</label><input type="text" id="leng_comp" placeholder="ej. Sin dificultades"></div>
+          <div class="score-item"><label>Repetición</label><input type="text" id="leng_rep" placeholder="ej. Sin dificultades"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg> Resultados — Habilidades visoespaciales</div>
+        <div class="score-grid">
+          <div class="score-item"><label>FCRO exactitud (PB/Z)</label><input type="text" id="vis_fcro_ex" placeholder="ej. 32 / -0.8"></div>
+          <div class="score-item"><label>FCRO tiempo (min)</label><input type="text" id="vis_fcro_t" placeholder="ej. 4"></div>
+          <div class="score-item"><label>Reloj a la orden</label><input type="text" id="vis_reloj" placeholder="ej. 4/5"></div>
+          <div class="score-item"><label>Pentágonos ACE-R</label><input type="text" id="vis_pent" placeholder="ej. 1/1"></div>
+          <div class="score-item"><label>Cubo ACE-R</label><input type="text" id="vis_cubo" placeholder="ej. 1/2"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Resultados — Funciones ejecutivas</div>
+        <div class="score-grid">
+          <div class="score-item"><label>TMT B flexibilidad (seg/Z)</label><input type="text" id="ej_tmtb" placeholder="ej. 229 / -2.2"></div>
+          <div class="score-item"><label>Vel. procesamiento (PB/Z)</label><input type="text" id="ej_vel" placeholder="ej. 93 / -0.5"></div>
+          <div class="score-item"><label>Stroop P (PB/Z)</label><input type="text" id="ej_strp" placeholder="ej. 77 / -1.6"></div>
+          <div class="score-item"><label>Stroop C (PB/Z)</label><input type="text" id="ej_strc" placeholder="ej. 64 / -1"></div>
+          <div class="score-item"><label>Stroop PC (PB/Z)</label><input type="text" id="ej_strpc" placeholder="ej. 46 / 0"></div>
+          <div class="score-item"><label>Stroop interferencia (PB/Z)</label><input type="text" id="ej_stri" placeholder="ej. 11 / 1"></div>
+          <div class="score-item"><label>IFS total (PB/Z)</label><input type="text" id="ej_ifs" placeholder="ej. 25.5/30 / 0.6"></div>
+          <div class="score-item"><label>IFS memoria de trabajo</label><input type="text" id="ej_ifs_mt" placeholder="ej. 9/10"></div>
+          <div class="score-item"><label>IFS programación motora</label><input type="text" id="ej_ifs_pm" placeholder="ej. 2/3"></div>
+          <div class="score-item"><label>IFS abstracción</label><input type="text" id="ej_ifs_abs" placeholder="ej. 0.5/3"></div>
+          <div class="score-item"><label>FCRO planificación</label><input type="text" id="ej_fcro_plan" placeholder="ej. Tipo I / Pc 75"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Resultados — Aspectos comportamentales</div>
+        <div class="score-grid">
+          <div class="score-item"><label>Yesavage (depresión)</label><input type="text" id="comp_yes" placeholder="ej. 10 / Sin sintomatología"></div>
+          <div class="score-item"><label>AVD Básicas</label><input type="text" id="comp_avdb" placeholder="ej. 0 / Independencia"></div>
+          <div class="score-item"><label>AVD Instrumentales</label><input type="text" id="comp_avdi" placeholder="ej. 8 / Independencia"></div>
+        </div>
+        <div class="field" style="margin-top:12px"><label>Cuestionario Disejecutivo (DEX)</label><textarea id="comp_dex" rows="3" placeholder="ej. Muy frecuentemente: se siente sobre exigida..."></textarea></div>
+        <div class="field"><label>Cuestionario Neuropsiquiátrico (NPI-Q)</label><textarea id="comp_npi" rows="3" placeholder="ej. Leve: ansiedad. Moderado: depresión o disforia..."></textarea></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg> Observaciones adicionales</div>
+        <div class="field"><textarea id="obs_adicionales" rows="4" placeholder="Cualquier dato clínico relevante adicional..."></textarea></div>
+      </div>
+
+      <div class="actions-bar">
+        <button class="btn-outline" onclick="limpiarForm()">Limpiar formulario</button>
+        <button class="btn-primary" id="btn-generar" onclick="generarInforme()">
+          <svg class="icon-btn" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Generar informe con IA
+        </button>
+      </div>
+
+      <div id="resultado-area" style="display:none">
+        <div class="card resultado-card">
+          <div class="card-title">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Informe generado
+          </div>
+          <div id="texto-generado" class="texto-informe"></div>
+          <div class="actions-bar" style="margin-top:1rem">
+            <button class="btn-outline" onclick="copiarTexto()">Copiar texto</button>
+            <button class="btn-outline" onclick="guardarEnNube()">
+              <svg class="icon-btn" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              Guardar en nube
+            </button>
+            <button class="btn-primary" onclick="descargarPDF()">
+              <svg class="icon-btn" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA: LISTA PACIENTES -->
+  <div id="view-lista" class="view">
+    <div class="container">
+      <div class="view-header">
+        <h2>Mis pacientes</h2>
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search-input" placeholder="Buscar por nombre..." oninput="filtrarLista()">
+        </div>
+      </div>
+      <div id="lista-pacientes"></div>
+    </div>
+  </div>
+
+  <!-- VISTA: CONFIGURACIÓN -->
+  <div id="view-config" class="view">
+    <div class="container">
+      <div class="view-header"><h2>Configuración</h2></div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> Encabezado del PDF</div>
+        <p class="hint">Estos datos aparecen en el encabezado de cada informe descargado.</p>
+        <div class="grid2">
+          <div class="field full"><label>Nombre profesional</label><input type="text" id="cfg-nombre" placeholder="ej. Pilar Maza"></div>
+          <div class="field"><label>Matrícula</label><input type="text" id="cfg-matricula" placeholder="ej. M. P. 13637"></div>
+          <div class="field"><label>Teléfono</label><input type="text" id="cfg-tel" placeholder="ej. 03537-15658796"></div>
+          <div class="field full"><label>Correo electrónico</label><input type="text" id="cfg-email" placeholder="ej. pilimaza7@gmail.com"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Estilo de redacción (prompt de IA)</div>
+        <p class="hint">Estas instrucciones guían cómo Claude redacta el informe. Podés editarlas para ajustar el tono, estructura o formato.</p>
+        <div class="field"><textarea id="cfg-prompt" rows="10"></textarea></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><svg class="icon" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Pruebas disponibles</div>
+        <p class="hint">Editá la lista de pruebas que aparece en el checklist del formulario. Una por línea.</p>
+        <div class="field"><textarea id="cfg-pruebas" rows="12"></textarea></div>
+      </div>
+
+      <div class="actions-bar">
+        <button class="btn-primary" onclick="guardarConfig()">Guardar configuración</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
