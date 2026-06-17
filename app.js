@@ -191,10 +191,22 @@ async function guardarConfig() {
   if (!error) {
     currentConfig = nuevaConfig;
     initPruebas();
-    showAppMsg('Configuración guardada correctamente.', 'success');
+    showConfigMsg('✓ Configuración guardada correctamente.', 'success');
   } else {
-    showAppMsg('Error al guardar la configuración.', 'error');
+    showConfigMsg('Error al guardar: ' + error.message, 'error');
   }
+}
+
+function showConfigMsg(msg, type) {
+  let el = document.getElementById('config-msg');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'config-msg';
+    const actionsBar = document.querySelector('#view-config .actions-bar');
+    actionsBar.parentNode.insertBefore(el, actionsBar);
+  }
+  el.innerHTML = `<div class="msg msg-${type}" style="margin-bottom:1rem">${msg}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 4000);
 }
 
 // ─── PRUEBAS CHECKLIST ────────────────────────────────────
